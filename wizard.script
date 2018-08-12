@@ -8,14 +8,16 @@ function BeginWizard()
 				"This wizard will guide you to create a new ARM application.\n\n" +
 				"Please click \"Next\" to proceed.");
 
-	local ARM_boards = _T(	"ARM-eval7t;" +
+	local ARM_boards = _T(	
+					"STM32F401RE;"	+		
+					"ARM-eval7t;" +
 					"ek-at91sam7a3;" +
 					"lpd-lh7a404;" +
 					"olimex-at91sam7sx;" +
 					"olimex-lpc213x;" +
 					"phyCORE-AT91M55800;" +
 					"phyCORE-LPC2294;" +
-					"phyCORE-PXA255;"
+					"phyCORE-PXA255;"								
 					);
 	// intro
 	Wizard.AddInfoPage(_T("ConsoleIntro"), intro_msg);
@@ -27,6 +29,7 @@ function BeginWizard()
 	Wizard.AddGenericSingleChoiceListPage(_T("ARMBoards"), _T("Please select your ARM evaluation board."), ARM_boards , board);
 
 	// Targetconfiguration for ARM
+	Wizard.AddGenericSingleChoiceListPage(_T("STM32F401RE_Config"), _T("Please select the configuration you want to use."), _T("default"), derivative);
 	Wizard.AddGenericSingleChoiceListPage(_T("ARM_eval7t_Config"), _T("Please select the configuration you want to use."), _T("default"), derivative);
 	Wizard.AddGenericSingleChoiceListPage(_T("ek_at91sam7a3_Config"), _T("Please select the configuration you want to use."), _T("Code in ROM;Code in RAM"), derivative);
 	Wizard.AddGenericSingleChoiceListPage(_T("lpd_lh7a404_Config"), _T("Please select the configuration you want to use."), _T("default"), derivative);
@@ -54,6 +57,9 @@ function OnGetNextPage_ARMBoards()
 {
 	switch (Wizard.GetListboxSelection(_T("GenericChoiceList")))
 	{
+		case -1:
+			return _T("STM32F401RE_Config");
+			break;
 		case 0:
 			return _T("ARM_eval7t_Config");
 			break;
@@ -80,6 +86,26 @@ function OnGetNextPage_ARMBoards()
 			break;
 	}
 	return _T("")
+}
+
+function OnLeave_STM32F401RE_Config(fwd)
+{
+	if (fwd)
+	{
+		derivative = Wizard.GetListboxSelection(_T("GenericChoiceList"));
+	}
+	return true;
+}
+
+function OnGetPrevPage_STM32F401RE_Config()
+{
+	return _T("ARMBoards");
+}
+
+function OnGetNextPage_STM32F401RE_Config()
+{
+	derivative = Wizard.GetListboxSelection(_T("GenericChoiceList"));
+	return _T("OutputVariant")
 }
 
 function OnLeave_ARM_eval7t_Config(fwd)
@@ -245,6 +271,10 @@ function GetFilesDir()
 
 	switch (board)
 	{
+		case -1:
+			return _T("arm") + wxFILE_SEP_PATH + _T("files") + wxFILE_SEP_PATH + _T("STM32F401RE");
+			break;
+			
 		case 0:
 			return _T("arm") + wxFILE_SEP_PATH + _T("files") + wxFILE_SEP_PATH + _T("ARM-eval7t");
 			break;
@@ -373,6 +403,49 @@ function SetupDerivative(derivative,project)
 {
 	switch (board)
 	{
+		case -1:// STM32F401RE
+			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Device/ST/STM32F4xx/Include"));
+			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Include"));
+			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates"));
+			project.AddIncludeDir(_T("lib/STM32F4xx_HAL_Driver/Inc"));
+			project.AddIncludeDir(_T("lib/STM32F4xx_HAL_Driver/Inc/Legacy"));
+			project.AddIncludeDir(_T("lib/Utilities"));
+			project.AddIncludeDir(_T("Inc"));			
+			
+			project.AddCompilerOption(_T("-mcpu=cortex-m4"));
+			project.AddCompilerOption(_T("-mthumb"));
+			project.AddCompilerOption(_T("-mfpu=fpv4-sp-d16"));
+			project.AddCompilerOption(_T("-mfloat-abi=hard"));
+			project.AddCompilerOption(_T("-DUSE_HAL_DRIVER"));
+      project.AddCompilerOption(_T("-DSTM32F401xE"));
+			project.AddCompilerOption(_T("-Og"));
+      project.AddCompilerOption(_T("-Wall"));			
+			project.AddCompilerOption(_T("-fdata-sections"));
+      project.AddCompilerOption(_T("-ffunction-sections"));				
+			project.AddCompilerOption(_T("-g")); //for debugging
+			project.AddCompilerOption(_T("-gdwarf"));	//for debugging		
+			project.AddCompilerOption(_T("-2")); //for debugging		
+			
+			project.AddLinkerOption(_T("-mcpu=cortex-m4"));
+			project.AddLinkerOption(_T("-mthumb"));
+			project.AddLinkerOption(_T("-mfpu=fpv4-sp-d16"));
+			project.AddLinkerOption(_T("-mfloat-abi=hard"));
+			project.AddLinkerOption(_T("-specs=nano.specs"));
+			project.AddLinkerOption(_T("-lc"));
+			project.AddLinkerOption(_T("-lm"));
+			project.AddLinkerOption(_T("-lnosys"));			
+			project.AddLinkerOption(_T("--cref"));
+			project.AddLinkerOption(_T("-Wl,--gc-sections"));
+
+			switch (derivative)
+			{
+				case 0:
+					project.AddLinkerOption(_T("-T ld/STM32F401RETx_FLASH.ld"));
+				break;
+
+			}
+			break;
+			
 		case 0:// ARM-eval7t
 			project.AddCompilerOption(_T("-mcpu=arm7tdmi"));
 			project.AddCompilerOption(_T("-DARM_EVAL7T"));
@@ -525,49 +598,6 @@ function SetupDerivative(derivative,project)
 			{
 				case 0:
 					project.AddLinkerOption(_T("-T ld/target.ld"));
-				break;
-			}
-			break;
-			
-		case 8:// STM32F401RE
-			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Device/ST/STM32F4xx/Include"));
-			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Include"));
-			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates"));
-			project.AddIncludeDir(_T("lib/STM32F4xx_HAL_Driver/Inc"));
-			project.AddIncludeDir(_T("lib/STM32F4xx_HAL_Driver/Inc/Legacy"));
-			project.AddIncludeDir(_T("lib/Utilities"));
-			project.AddIncludeDir(_T("Inc"));			
-			
-			project.AddCompilerOption(_T("-mcpu=cortex-m4"));
-			project.AddCompilerOption(_T("-mthumb"));
-			project.AddCompilerOption(_T("-mfpu=fpv4-sp-d16"));
-			project.AddCompilerOption(_T("-mfloat-abi=hard"));
-			project.AddCompilerOption(_T("-DUSE_HAL_DRIVER"));
-      project.AddCompilerOption(_T("-DSTM32F401xE"));
-			project.AddCompilerOption(_T("-Og"));
-      project.AddCompilerOption(_T("-Wall"));			
-			project.AddCompilerOption(_T("-fdata-sections"));
-      project.AddCompilerOption(_T("-ffunction-sections"));				
-		
-			
-			project.AddLinkerOption(_T("-mcpu=cortex-m4"));
-			project.AddLinkerOption(_T("-mthumb"));
-			project.AddLinkerOption(_T("-mfpu=fpv4-sp-d16"));
-			project.AddLinkerOption(_T("-mfloat-abi=hard"));
-			project.AddLinkerOption(_T("-specs=nano.specs"));
-			project.AddLinkerOption(_T("-T ld/STM32F401RETx_FLASH.ld"));
-			project.AddLinkerOption(_T("-lc"));
-			project.AddLinkerOption(_T("-lm"));
-			project.AddLinkerOption(_T("-lnosys"));			
-			project.AddLinkerOption(_T("--cref"));
-			project.AddLinkerOption(_T("-Wl,--gc-sections"));
-
-			switch (derivative)
-			{
-				case 0:
-						project.AddCompilerOption(_T("-g")); //for debugging
-						project.AddCompilerOption(_T("-gdwarf"));	//for debugging		
-						project.AddCompilerOption(_T("-2")); //for debugging
 				break;
 			}
 			break;
