@@ -528,5 +528,48 @@ function SetupDerivative(derivative,project)
 				break;
 			}
 			break;
+			
+		case 8:// STM32F401RE
+			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Device/ST/STM32F4xx/Include"));
+			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Include"));
+			project.AddIncludeDir(_T("lib/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates"));
+			project.AddIncludeDir(_T("lib/STM32F4xx_HAL_Driver/Inc"));
+			project.AddIncludeDir(_T("lib/STM32F4xx_HAL_Driver/Inc/Legacy"));
+			project.AddIncludeDir(_T("lib/Utilities"));
+			project.AddIncludeDir(_T("Inc"));			
+			
+			project.AddCompilerOption(_T("-mcpu=cortex-m4"));
+			project.AddCompilerOption(_T("-mthumb"));
+			project.AddCompilerOption(_T("-mfpu=fpv4-sp-d16"));
+			project.AddCompilerOption(_T("-mfloat-abi=hard"));
+			project.AddCompilerOption(_T("-DUSE_HAL_DRIVER"));
+      project.AddCompilerOption(_T("-DSTM32F401xE"));
+			project.AddCompilerOption(_T("-Og"));
+      project.AddCompilerOption(_T("-Wall"));			
+			project.AddCompilerOption(_T("-fdata-sections"));
+      project.AddCompilerOption(_T("-ffunction-sections"));				
+		
+			
+			project.AddLinkerOption(_T("-mcpu=cortex-m4"));
+			project.AddLinkerOption(_T("-mthumb"));
+			project.AddLinkerOption(_T("-mfpu=fpv4-sp-d16"));
+			project.AddLinkerOption(_T("-mfloat-abi=hard"));
+			project.AddLinkerOption(_T("-specs=nano.specs"));
+			project.AddLinkerOption(_T("-T ld/STM32F401RETx_FLASH.ld"));
+			project.AddLinkerOption(_T("-lc"));
+			project.AddLinkerOption(_T("-lm"));
+			project.AddLinkerOption(_T("-lnosys"));			
+			project.AddLinkerOption(_T("--cref"));
+			project.AddLinkerOption(_T("-Wl,--gc-sections"));
+
+			switch (derivative)
+			{
+				case 0:
+						project.AddCompilerOption(_T("-g")); //for debugging
+						project.AddCompilerOption(_T("-gdwarf"));	//for debugging		
+						project.AddCompilerOption(_T("-2")); //for debugging
+				break;
+			}
+			break;
 	}
 }
