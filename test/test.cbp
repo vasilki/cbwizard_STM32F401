@@ -97,6 +97,15 @@
 		<Unit filename="Lib/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="Lib/Drivers/stm32f4xx_hal_msp.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Lib/Drivers/stm32f4xx_it.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Lib/Drivers/system_stm32f4xx.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="Lib/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c">
 			<Option compilerVar="CC" />
 		</Unit>
