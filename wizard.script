@@ -332,11 +332,11 @@ function SetupProject(project)
 	OptimizationsOn(project, Wizard.GetCompilerID());
 
 	// Add subdirectories for includes
-	project.AddIncludeDir(_T("src"));
-	project.AddIncludeDir(_T("h"));
+	//project.AddIncludeDir(_T("src"));
+	//project.AddIncludeDir(_T("h"));
 
-	project.AddCompilerOption(_T("-fno-common"));
-	project.AddLinkerOption(_T("-Wl,-Map,map.txt"));
+	//project.AddCompilerOption(_T("-fno-common"));
+	//project.AddLinkerOption(_T("-Wl,-Map,map.txt"));
 
 	SetupDerivative(derivative,project);
 
@@ -563,8 +563,9 @@ function SetupDerivative(derivative,project)
 			project.AddIncludeDir(_T("Lib/Drivers/CMSIS/Device/ST/STM32F4xx/Include"));
 			project.AddIncludeDir(_T("Lib/Drivers/CMSIS/Include"));
 			project.AddIncludeDir(_T("Lib/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates"));
-			project.AddIncludeDir(_T("Lib/STM32F4xx_HAL_Driver/Inc"));
-			project.AddIncludeDir(_T("Lib/STM32F4xx_HAL_Driver/Inc/Legacy"));
+			project.AddIncludeDir(_T("Lib/Drivers/STM32F4xx_HAL_Driver/Inc"));
+			project.AddIncludeDir(_T("Lib/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"));
+			project.AddIncludeDir(_T("Lib/Drivers"));
 			//project.AddIncludeDir(_T("Lib/Utilities"));
 			project.AddIncludeDir(_T("Inc"));			
 			
@@ -579,8 +580,7 @@ function SetupDerivative(derivative,project)
 			project.AddCompilerOption(_T("-fdata-sections"));
       project.AddCompilerOption(_T("-ffunction-sections"));				
 			project.AddCompilerOption(_T("-g")); //for debugging
-			project.AddCompilerOption(_T("-gdwarf"));	//for debugging		
-			project.AddCompilerOption(_T("-2")); //for debugging		
+			project.AddCompilerOption(_T("-gdwarf-2"));	//for debugging		
 			
 			project.AddLinkerOption(_T("-mcpu=cortex-m4"));
 			project.AddLinkerOption(_T("-mthumb"));
@@ -590,8 +590,7 @@ function SetupDerivative(derivative,project)
 			project.AddLinkerOption(_T("-lc"));
 			project.AddLinkerOption(_T("-lm"));
 			project.AddLinkerOption(_T("-lnosys"));			
-			project.AddLinkerOption(_T("--cref"));
-			project.AddLinkerOption(_T("-Wl,--gc-sections"));
+			project.AddLinkerOption(_T("-Wl,-Map=mapfile.txt,--cref -Wl,--gc-sections"));
 
 			switch (derivative)
 			{
